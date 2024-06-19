@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="5dp">
+
+        <DatePicker
+            android:id="@+id/datePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="15dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/viewDatePick"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/babyblue"
+            android:gravity="center"
+            android:inputType="text|textMultiLine|textCapSentences"
+            android:padding="7sp"
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="25sp"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:fillViewport="true">
+            <EditText
+                android:id="@+id/editDiary"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/babypink"
+                android:gravity="start"
+                android:inputType="text|textMultiLine|textCapSentences"
+                android:padding="7sp"
+                android:hint="일기를 작성하세요."
+                android:textColorHint="@color/darkgray"
+                android:textColor="@color/black"/>
+        </ScrollView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="새 일기 저장"/>
+
+            <Button
+                android:id="@+id/btnUpdate"
+                android:layout_width="205dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:visibility="gone"
+                android:text="일기 수정"/>
+
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="205dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:visibility="gone"
+                android:text="일기 삭제"/>
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>
