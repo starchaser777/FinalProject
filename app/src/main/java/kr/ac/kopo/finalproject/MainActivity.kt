@@ -1,19 +1,19 @@
 package kr.ac.kopo.finalproject
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
-import android.widget.LinearLayout.LayoutParams
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.util.Calendar
 
 
@@ -22,10 +22,12 @@ class MainActivity : AppCompatActivity() {
     lateinit var datePicker: DatePicker; //  datePicker - 날짜를 선택하는 달력
     lateinit var viewDatePick: TextView; //  viewDatePick - 선택한 날짜를 보여주는 textView
     lateinit var editDiary: EditText; // editDiary - 선택한 날짜의 일기를 쓰거나 기존에 저장된 일기가 있다면 보여주고 수정하는 영역
+    lateinit var textCount: TextView; // editDiary - 선택한 날짜의 일기를 쓰거나 기존에 저장된 일기가 있다면 보여주고 수정하는 영역
     lateinit var btnSave: Button; //  btnSave - 선택한 날짜의 일기 저장 및 수정(덮어쓰기) 버튼
     lateinit var btnUpdate: Button; //  btnSave - 선택한 날짜의 일기 저장 및 수정(덮어쓰기) 버튼
     lateinit var btnDelete: Button; //  btnSave - 선택한 날짜의 일기 저장 및 수정(덮어쓰기) 버튼
     var fileName: String? = null //  fileName - 돌고 도는 선택된 날짜의 파일 이름
+    var originalContent: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         datePicker = findViewById<DatePicker>(R.id.datePicker)
         viewDatePick = findViewById<TextView>(R.id.viewDatePick)
         editDiary = findViewById<EditText>(R.id.editDiary)
+        textCount = findViewById<TextView>(R.id.textCount)
         btnSave = findViewById<Button>(R.id.btnSave)
         btnUpdate = findViewById<Button>(R.id.btnUpdate)
         btnDelete = findViewById<Button>(R.id.btnDelete)
@@ -59,12 +62,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnUpdate.setOnClickListener {
-            updateDiary(fileName!!)
+            showConfirmationDialog("일기를 수정하시겠습니까?") {
+                updateDiary(fileName!!)
+            }
         }
 
         btnDelete.setOnClickListener {
-            deleteDiary(fileName!!)
+            showConfirmationDialog("일기를 삭제하시겠습니까?") {
+                deleteDiary(fileName!!)
+            }
         }
+
+        editDiary.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                val input: String = editDiary.getText().toString()
+                textCount.setText(input.length.toString() + " / 1000")
+            }
+
+            override fun afterTextChanged(s: Editable) {}
+        })
     }
 
     // 일기 파일 읽기
@@ -82,11 +99,13 @@ class MainActivity : AppCompatActivity() {
             fis.close()
             val str = String(fileData, charset("UTF-8"))
             editDiary.setText(str)
+            originalContent = str
             btnSave.visibility = View.GONE
             btnUpdate.visibility = View.VISIBLE
             btnDelete.visibility = View.VISIBLE
         } catch (e: Exception) {
             editDiary.setText("")
+            originalContent = ""
             btnSave.visibility = View.VISIBLE
             btnUpdate.visibility = View.GONE
             btnDelete.visibility = View.GONE
@@ -120,6 +139,7 @@ class MainActivity : AppCompatActivity() {
             if (file.exists()) {
                 file.delete()
                 editDiary.setText("")
+                originalContent = ""
                 Toast.makeText(applicationContext, "일기가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                 btnSave.visibility = View.VISIBLE
                 btnUpdate.visibility = View.GONE
@@ -140,6 +160,7 @@ class MainActivity : AppCompatActivity() {
                 val content: String = editDiary.text.toString()
                 file.writeText(content, Charsets.UTF_8)
                 Toast.makeText(applicationContext, "일기가 수정되었습니다.", Toast.LENGTH_SHORT).show()
+                originalContent = content
             } else {
                 Toast.makeText(applicationContext, "수정할 일기가 없습니다.", Toast.LENGTH_SHORT).show()
             }
@@ -148,6 +169,20 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "일기 수정에 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
         }
     }
-// 추가할 기능 - 텍스트 입력시 밑쪽 작성 버튼도 함께 보이도록 설정하기, 글자수 제한 (1000자), 일기 수정 or 삭제하시겠습니까? 묻기, 제목 부분 추가, 작성한 일기 목록화, 그간 쓴 일기 목록 탭호스트, 함수 필요없는 기능 다듬기
+
+    private fun showConfirmationDialog(message: String, onConfirm: () -> Unit) {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(message)
+            .setPositiveButton("예") { _, _ ->
+                onConfirm()
+            }
+            .setNegativeButton("아니오") { dialog, _ ->
+                // 원래 내용을 복원
+                editDiary.setText(originalContent)
+                dialog.dismiss()
+            }
+        builder.create().show()
+    }
+// 추가할 기능 - 텍스트 입력시 밑쪽 작성 버튼도 함께 보이도록 설정하기, 제목 부분 추가, 작성한 일기 목록화, 그간 쓴 일기 목록 탭호스트, 함수 필요없는 기능 다듬기
 // 마무리 - values 파일에 스타일 지정해서 적용, 디자인
 }

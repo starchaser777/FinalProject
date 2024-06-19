@@ -30,19 +30,19 @@
             android:id="@+id/viewDatePick"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
             android:background="@color/babyblue"
             android:gravity="center"
             android:inputType="text|textMultiLine|textCapSentences"
-            android:padding="7sp"
+            android:padding="7dp"
             android:text=""
             android:textColor="@color/black"
-            android:textSize="25sp"/>
+            android:textSize="20sp"/>
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="4"
+            android:layout_weight="5"
             android:fillViewport="true">
             <EditText
                 android:id="@+id/editDiary"
@@ -51,17 +51,30 @@
                 android:background="@color/babypink"
                 android:gravity="start"
                 android:inputType="text|textMultiLine|textCapSentences"
-                android:padding="7sp"
+                android:padding="7dp"
                 android:hint="일기를 작성하세요."
+                android:maxLength="1000"
                 android:textColorHint="@color/darkgray"
                 android:textColor="@color/black"/>
         </ScrollView>
+
+        <TextView
+            android:id="@+id/textCount"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="7dp"
+            android:gravity="right|center"
+            android:background="@color/babypink"
+            android:text="0 / 1000"
+            android:textColor="@color/black"
+            android:layout_gravity="right"/>
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
-            android:layout_weight="1">
+            android:layout_weight="1.5">
             <Button
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
