@@ -5,20 +5,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/white"
     tools:context=".MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="5dp">
 
+        <ImageButton
+            android:id="@+id/btnBackToTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow"
+            android:background="@null"
+            android:layout_marginRight="5dp"/>
         <DatePicker
             android:id="@+id/datePicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="15dp"/>
+            android:headerBackground="@color/navy"
+            android:calendarTextColor="@color/black"
+            android:layout_marginTop="10dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -56,7 +66,7 @@
             android:id="@+id/editContent"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="4"
+            android:layout_weight="3"
             android:background="@color/babypink"
             android:gravity="start"
             android:inputType="text|textMultiLine|textCapSentences"
@@ -70,7 +80,7 @@
             android:id="@+id/textCount"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="0.8"
             android:padding="7dp"
             android:gravity="right|center"
             android:background="@color/babypink"
@@ -104,6 +114,7 @@
                 android:layout_gravity="right"
                 android:visibility="gone"
                 android:text="일기 삭제"/>
+
         </FrameLayout>
     </LinearLayout>
 </LinearLayout>

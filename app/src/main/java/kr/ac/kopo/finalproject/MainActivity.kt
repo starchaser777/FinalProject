@@ -1,5 +1,6 @@
 package kr.ac.kopo.finalproject
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -8,7 +9,7 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
-import android.widget.ScrollView
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -17,37 +18,38 @@ import java.io.File
 import java.io.FileInputStream
 import java.util.Calendar
 
-
 class MainActivity : AppCompatActivity() {
 
-    lateinit var datePicker: DatePicker; //  datePicker - 날짜를 선택하는 달력
-    lateinit var viewDatePick: TextView; //  viewDatePick - 선택한 날짜를 보여주는 textView
-    lateinit var editTitle: EditText; // editContent - 선택한 날짜의 일기를 쓰거나 기존에 저장된 일기가 있다면 보여주고 수정하는 영역
-    lateinit var editContent: EditText; // editContent - 선택한 날짜의 일기를 쓰거나 기존에 저장된 일기가 있다면 보여주고 수정하는 영역
-    lateinit var textCount: TextView; // textCount - 제한 글자수와 현재 입력된 글자수를 보여주는 영역
+    lateinit var datePicker: DatePicker
+    lateinit var viewDatePick: TextView
+    lateinit var editTitle: EditText
+    lateinit var editContent: EditText
+    lateinit var textCount: TextView
 
-    lateinit var btnSave: Button; //  btnSave - 선택한 날짜의 일기 저장 버튼
-    lateinit var btnUpdate: Button; //  btnSave - 선택한 날짜의 일기 수정(덮어쓰기) 버튼
-    lateinit var btnDelete: Button; //  btnSave - 선택한 날짜의 일기 삭제 버튼
-    var fileName: String? = null //  fileName - 선택된 날짜의 파일 이름
+    lateinit var btnSave: Button
+    lateinit var btnUpdate: Button
+    lateinit var btnDelete: Button
+    var fileName: String? = null
     var originalContent: String? = null
     var originalTitle: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
         setTitle("심플기록 일기장")
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
-        datePicker = findViewById<DatePicker>(R.id.datePicker)
-        viewDatePick = findViewById<TextView>(R.id.viewDatePick)
-        editTitle = findViewById<EditText>(R.id.editTitle)
-        editContent = findViewById<EditText>(R.id.editContent)
-        textCount = findViewById<TextView>(R.id.textCount)
-        btnSave = findViewById<Button>(R.id.btnSave)
-        btnUpdate = findViewById<Button>(R.id.btnUpdate)
-        btnDelete = findViewById<Button>(R.id.btnDelete)
+        val btnBackToTitle = findViewById<ImageButton>(R.id.btnBackToTitle)
+        datePicker = findViewById(R.id.datePicker)
+        viewDatePick = findViewById(R.id.viewDatePick)
+        editTitle = findViewById(R.id.editTitle)
+        editContent = findViewById(R.id.editContent)
+        textCount = findViewById(R.id.textCount)
+        btnSave = findViewById(R.id.btnSave)
+        btnUpdate = findViewById(R.id.btnUpdate)
+        btnDelete = findViewById(R.id.btnDelete)
 
         val c = Calendar.getInstance()
         val cYear = c[Calendar.YEAR]
@@ -78,16 +80,21 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        btnBackToTitle.setOnClickListener {
+            val intent = Intent(this, TitleActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
         editContent.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                val input: String = editContent.getText().toString()
-                textCount.setText(input.length.toString() + " / 500")
+                val input: String = editContent.text.toString()
+                textCount.text = "${input.length} / 500"
             }
 
             override fun afterTextChanged(s: Editable) {}
         })
-
     }
 
     // 일기 파일 읽기
@@ -128,6 +135,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // 일기 작성(저장)
     private fun saveDiary(readDay: String) {
         try {
             val title: String = editTitle.text.toString().trim()
@@ -147,6 +155,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // 일기 삭제
     private fun deleteDiary(readDay: String) {
         try {
             val file = File(filesDir, readDay)
@@ -167,6 +176,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // 일기 수정
     private fun updateDiary(readDay: String) {
         try {
             val title: String = editTitle.text.toString().trim()
@@ -198,7 +208,6 @@ class MainActivity : AppCompatActivity() {
                 onConfirm()
             }
             .setNegativeButton("아니오") { dialog, _ ->
-                // 원래 내용을 복원
                 editTitle.setText(originalTitle)
                 editContent.setText(originalContent)
                 dialog.dismiss()
@@ -206,6 +215,7 @@ class MainActivity : AppCompatActivity() {
         builder.create().show()
     }
 
+    // 버튼 visibility 설정
     private fun buttonVisibility(isDiaryExist: Boolean) {
         if (isDiaryExist) {
             btnSave.visibility = View.GONE
@@ -217,7 +227,4 @@ class MainActivity : AppCompatActivity() {
             btnDelete.visibility = View.GONE
         }
     }
-
-// 추가할 기능 - 텍스트 입력시 밑쪽 작성 버튼도 함께 보이도록 설정하기, 제목 부분 추가, 작성한 일기 목록화, 그간 쓴 일기 목록 탭호스트, 함수 필요없는 기능 다듬기
-// 마무리 - values 파일에 스타일 지정해서 적용, 디자인
 }
