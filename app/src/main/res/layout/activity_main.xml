@@ -5,12 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white"
     tools:context=".MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1.5"
         android:orientation="horizontal"
         android:padding="5dp">
 
@@ -33,14 +33,15 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/viewDatePick"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="0.9"
             android:background="@color/babyblue"
             android:gravity="center"
             android:inputType="text|textMultiLine|textCapSentences"
@@ -53,12 +54,13 @@
             android:id="@+id/editTitle"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="0.8"
             android:background="@color/mint"
             android:gravity="start"
             android:inputType="textCapSentences"
             android:padding="7dp"
             android:hint="제목"
+            android:maxLength="30"
             android:textColorHint="@color/darkgray"
             android:textColor="@color/black"/>
 
@@ -80,7 +82,7 @@
             android:id="@+id/textCount"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.8"
+            android:layout_weight="0.7"
             android:padding="7dp"
             android:gravity="right|center"
             android:background="@color/babypink"

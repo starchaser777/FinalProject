@@ -28,6 +28,12 @@ class TitleActivity : AppCompatActivity() {
             finish()
         }
 
+        val btnGoToDiaryList = findViewById<Button>(R.id.btnGoToDiaryList)
+        btnGoToDiaryList.setOnClickListener {
+            val intent = Intent(this, DiaryListActivity::class.java)
+            startActivity(intent)
+        }
+
         val btnResetPassword = findViewById<Button>(R.id.btnResetPassword)
         btnResetPassword.setOnClickListener {
             showResetPasswordDialog()

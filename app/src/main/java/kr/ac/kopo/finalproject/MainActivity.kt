@@ -14,32 +14,29 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import java.io.File
-import java.io.FileInputStream
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
-
     lateinit var datePicker: DatePicker
     lateinit var viewDatePick: TextView
     lateinit var editTitle: EditText
     lateinit var editContent: EditText
     lateinit var textCount: TextView
-
     lateinit var btnSave: Button
     lateinit var btnUpdate: Button
     lateinit var btnDelete: Button
     var fileName: String? = null
     var originalContent: String? = null
     var originalTitle: String? = null
+    private lateinit var diaryRepository: DiaryRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_main)
         setTitle("심플기록 일기장")
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        diaryRepository = DiaryRepository(this)
 
         val btnBackToTitle = findViewById<ImageButton>(R.id.btnBackToTitle)
         datePicker = findViewById(R.id.datePicker)
@@ -55,44 +52,36 @@ class MainActivity : AppCompatActivity() {
         val cYear = c[Calendar.YEAR]
         val cMonth = c[Calendar.MONTH]
         val cDay = c[Calendar.DAY_OF_MONTH]
-
         checkedDay(cYear, cMonth, cDay)
 
-        datePicker.init(
-            datePicker.year, datePicker.month, datePicker.dayOfMonth
-        ) { view, year, monthOfYear, dayOfMonth ->
+        datePicker.init(datePicker.year, datePicker.month, datePicker.dayOfMonth) { _, year, monthOfYear, dayOfMonth ->
             checkedDay(year, monthOfYear, dayOfMonth)
         }
 
         btnSave.setOnClickListener {
             saveDiary(fileName!!)
         }
-
         btnUpdate.setOnClickListener {
             showConfirmationDialog("일기를 수정하시겠습니까?") {
                 updateDiary(fileName!!)
             }
         }
-
         btnDelete.setOnClickListener {
             showConfirmationDialog("일기를 삭제하시겠습니까?") {
                 deleteDiary(fileName!!)
             }
         }
-
         btnBackToTitle.setOnClickListener {
             val intent = Intent(this, TitleActivity::class.java)
             startActivity(intent)
             finish()
         }
-
         editContent.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 val input: String = editContent.text.toString()
                 textCount.text = "${input.length} / 500"
             }
-
             override fun afterTextChanged(s: Editable) {}
         })
     }
@@ -100,104 +89,73 @@ class MainActivity : AppCompatActivity() {
     // 일기 파일 읽기
     private fun checkedDay(year: Int, monthOfYear: Int, dayOfMonth: Int) {
         viewDatePick.text = "$year - ${monthOfYear + 1} - $dayOfMonth"
+        fileName = "$year${monthOfYear + 1}$dayOfMonth"
 
-        fileName = "$year${monthOfYear + 1}$dayOfMonth.txt"
-
-        var fis: FileInputStream? = null
-        try {
-            fis = openFileInput(fileName)
-            val fileData = ByteArray(fis.available())
-            fis.read(fileData)
-            fis.close()
-            val str = String(fileData, charset("UTF-8"))
-
-            val splitData = str.split("\n", limit = 2)
-            if (splitData.size == 2) {
-                editTitle.setText(splitData[0])
-                editContent.setText(splitData[1])
-                originalTitle = splitData[0]
-                originalContent = splitData[1]
-            } else {
-                editTitle.setText("")
-                editContent.setText(str)
-                originalTitle = ""
-                originalContent = str
-            }
-
+        val diary = diaryRepository.getDiary(fileName!!)
+        if (diary != null) {
+            editTitle.setText(diary.title)
+            editContent.setText(diary.content)
+            originalTitle = diary.title
+            originalContent = diary.content
             buttonVisibility(true)
-        } catch (e: Exception) {
+        } else {
             editTitle.setText("")
             editContent.setText("")
             originalTitle = ""
             originalContent = ""
             buttonVisibility(false)
-            e.printStackTrace()
         }
     }
 
     // 일기 작성(저장)
-    private fun saveDiary(readDay: String) {
-        try {
-            val title: String = editTitle.text.toString().trim()
-            val content: String = editContent.text.toString().trim()
-            if (title.isBlank() || content.isBlank()) {
-                Toast.makeText(applicationContext, "제목 혹은 내용이 없어 일기를 저장할 수 없습니다.", Toast.LENGTH_SHORT).show()
-                return
-            }
+    private fun saveDiary(date: String) {
+        val title: String = editTitle.text.toString().trim()
+        val content: String = editContent.text.toString().trim()
+        if (title.isBlank() || content.isBlank()) {
+            Toast.makeText(applicationContext, "제목 혹은 내용이 없어 일기를 저장할 수 없습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-            val file = File(filesDir, readDay)
-            file.writeText("$title\n$content", Charsets.UTF_8)
+        val success = diaryRepository.saveDiary(date, title, content)
+        if (success) {
             Toast.makeText(applicationContext, "일기가 저장되었습니다.", Toast.LENGTH_SHORT).show()
             buttonVisibility(true)
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } else {
             Toast.makeText(applicationContext, "일기 저장에 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
     // 일기 삭제
-    private fun deleteDiary(readDay: String) {
-        try {
-            val file = File(filesDir, readDay)
-            if (file.exists()) {
-                file.delete()
-                editTitle.setText("")
-                editContent.setText("")
-                originalTitle = ""
-                originalContent = ""
-                Toast.makeText(applicationContext, "일기가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
-                buttonVisibility(false)
-            } else {
-                Toast.makeText(applicationContext, "삭제할 일기가 없습니다.", Toast.LENGTH_SHORT).show()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(applicationContext, "일기 삭제에 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+    private fun deleteDiary(date: String) {
+        val success = diaryRepository.deleteDiary(date)
+        if (success) {
+            editTitle.setText("")
+            editContent.setText("")
+            originalTitle = ""
+            originalContent = ""
+            Toast.makeText(applicationContext, "일기가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+            buttonVisibility(false)
+        } else {
+            Toast.makeText(applicationContext, "삭제할 일기가 없습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
     // 일기 수정
-    private fun updateDiary(readDay: String) {
-        try {
-            val title: String = editTitle.text.toString().trim()
-            val content: String = editContent.text.toString().trim()
-            if (title.isBlank() || content.isBlank()) {
-                Toast.makeText(applicationContext, "제목 혹은 내용이 없어 일기를 수정할 수 없습니다.", Toast.LENGTH_SHORT).show()
-                return
-            }
+    private fun updateDiary(date: String) {
+        val title: String = editTitle.text.toString().trim()
+        val content: String = editContent.text.toString().trim()
+        if (title.isBlank() || content.isBlank()) {
+            Toast.makeText(applicationContext, "제목 혹은 내용이 없어 일기를 수정할 수 없습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-            val file = File(filesDir, readDay)
-            if (file.exists()) {
-                file.writeText("$title\n$content", Charsets.UTF_8)
-                Toast.makeText(applicationContext, "일기가 수정되었습니다.", Toast.LENGTH_SHORT).show()
-                originalTitle = title
-                originalContent = content
-            } else {
-                Toast.makeText(applicationContext, "수정할 일기가 없습니다.", Toast.LENGTH_SHORT).show()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(applicationContext, "일기 수정에 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+        val success = diaryRepository.updateDiary(date, title, content)
+        if (success) {
+            Toast.makeText(applicationContext, "일기가 수정되었습니다.", Toast.LENGTH_SHORT).show()
+            originalTitle = title
+            originalContent = content
+        } else {
+            Toast.makeText(applicationContext, "수정할 일기가 없습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
