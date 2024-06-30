@@ -1,6 +1,7 @@
 package kr.ac.kopo.finalproject
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -38,6 +39,11 @@ class TitleActivity : AppCompatActivity() {
         btnResetPassword.setOnClickListener {
             showResetPasswordDialog()
         }
+
+        val btnExitApp = findViewById<Button>(R.id.btnExitApp)
+        btnExitApp.setOnClickListener {
+            showExitConfirmationDialog()
+        }
     }
 
     private fun showResetPasswordDialog() {
@@ -61,6 +67,20 @@ class TitleActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
             .setNegativeButton("취소") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    private fun showExitConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("앱 종료")
+            .setMessage("앱을 종료하시겠습니까?")
+            .setPositiveButton("예") { _, _ ->
+                finishAffinity()
+            }
+            .setNegativeButton("아니오") { dialog, _ ->
                 dialog.dismiss()
             }
             .create()
