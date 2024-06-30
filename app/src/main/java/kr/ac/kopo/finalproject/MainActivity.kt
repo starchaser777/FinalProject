@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
+
     lateinit var datePicker: DatePicker
     lateinit var viewDatePick: TextView
     lateinit var editTitle: EditText
@@ -25,9 +26,11 @@ class MainActivity : AppCompatActivity() {
     lateinit var btnSave: Button
     lateinit var btnUpdate: Button
     lateinit var btnDelete: Button
+
     var fileName: String? = null
     var originalContent: String? = null
     var originalTitle: String? = null
+
     private lateinit var diaryRepository: DiaryRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,10 +89,10 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    // 일기 파일 읽기
+    // 일기 데이터베이스에서 읽기
     private fun checkedDay(year: Int, monthOfYear: Int, dayOfMonth: Int) {
         viewDatePick.text = "$year - ${monthOfYear + 1} - $dayOfMonth"
-        fileName = "$year${monthOfYear + 1}$dayOfMonth"
+        fileName = "${year}년 ${monthOfYear + 1}월 ${dayOfMonth}일"
 
         val diary = diaryRepository.getDiary(fileName!!)
         if (diary != null) {
@@ -135,8 +138,6 @@ class MainActivity : AppCompatActivity() {
             originalContent = ""
             Toast.makeText(applicationContext, "일기가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
             buttonVisibility(false)
-        } else {
-            Toast.makeText(applicationContext, "삭제할 일기가 없습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -154,8 +155,6 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "일기가 수정되었습니다.", Toast.LENGTH_SHORT).show()
             originalTitle = title
             originalContent = content
-        } else {
-            Toast.makeText(applicationContext, "수정할 일기가 없습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
         android:layout_marginBottom="220dp"
-        android:text="쓴 일기 보러가기" />
+        android:text="작성한 일기 보러가기" />
 
     <Button
         android:id="@+id/btnResetPassword"
