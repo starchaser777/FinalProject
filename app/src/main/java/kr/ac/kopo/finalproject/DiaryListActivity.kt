@@ -39,7 +39,7 @@ class DiaryListActivity : AppCompatActivity() {
                 val selectedDiary = diaries[position]
                 val dateParts = selectedDiary.date.split("년 ", "월 ", "일")
                 val year = dateParts[0].toInt()
-                val month = dateParts[1].toInt()
+                val month = dateParts[1].toInt() // 0-indexed months
                 val day = dateParts[2].toInt()
 
                 val intent = Intent(this, MainActivity::class.java).apply {

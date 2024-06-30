@@ -57,15 +57,26 @@ class MainActivity : AppCompatActivity() {
         val cMonth = c[Calendar.MONTH]+1
         val cDay = c[Calendar.DAY_OF_MONTH]
 
-        val selectedDate = CalendarDay.from(cYear, cMonth, cDay)
-        calendarView.setCurrentDate(selectedDate)
-        calendarView.setDateSelected(selectedDate, true)
-
-        checkedDay(cYear, cMonth, cDay)
+        val intent = intent
+        if (intent.hasExtra("year") && intent.hasExtra("month") && intent.hasExtra("day")) {
+            val year = intent.getIntExtra("year", cYear)
+            val month = intent.getIntExtra("month", cMonth)
+            val day = intent.getIntExtra("day", cDay)
+            val selectedDate = CalendarDay.from(year, month, day)
+            calendarView.setDateSelected(selectedDate, true)
+            calendarView.setCurrentDate(selectedDate)
+            checkedDay(year, month, day)
+        } else {
+            val today = CalendarDay.from(cYear, cMonth, cDay)
+            calendarView.setCurrentDate(today)
+            calendarView.setDateSelected(today, true)
+            checkedDay(cYear, cMonth, cDay)
+        }
 
         calendarView.setOnDateChangedListener { widget, date, selected ->
             checkedDay(date.year, date.month, date.day)
         }
+
         btnSave.setOnClickListener {
             saveDiary(fileName!!)
         }
