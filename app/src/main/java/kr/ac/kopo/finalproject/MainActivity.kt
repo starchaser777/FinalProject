@@ -56,7 +56,19 @@ class MainActivity : AppCompatActivity() {
         val cYear = c[Calendar.YEAR]
         val cMonth = c[Calendar.MONTH]
         val cDay = c[Calendar.DAY_OF_MONTH]
-        checkedDay(cYear, cMonth, cDay)
+
+        val intent = intent
+        if (intent.hasExtra("year") && intent.hasExtra("month") && intent.hasExtra("day")) {
+            val year = intent.getIntExtra("year", cYear)
+            val month = intent.getIntExtra("month", cMonth)
+            val day = intent.getIntExtra("day", cDay)
+            val selectedDate = CalendarDay.from(year, month, day)
+            calendarView.setDateSelected(selectedDate, true)
+            calendarView.setCurrentDate(selectedDate)
+            checkedDay(year, month, day)
+        } else {
+            checkedDay(cYear, cMonth, cDay)
+        }
 
         calendarView.setOnDateChangedListener { widget, date, selected ->
             checkedDay(date.year, date.month, date.day)
@@ -191,7 +203,7 @@ class MainActivity : AppCompatActivity() {
         val calendarDays = allDiaryDates.map {
             val parts = it.split("년 ", "월 ", "일")
             val year = parts[0].toInt()
-            val month = parts[1].toInt() // CalendarDay의 month는 0부터 시작
+            val month = parts[1].toInt()
             val day = parts[2].toInt()
             CalendarDay.from(year, month, day)
         }

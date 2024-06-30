@@ -27,9 +27,21 @@
             android:textColor="@color/black"
             android:layout_marginLeft="60dp"/>
     </LinearLayout>
+    <TextView
+        android:id="@+id/noDiariesTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="작성된 일기가 없습니다"
+        android:textSize="20sp"
+        android:textColor="@color/darkgray"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="20dp"/>
     <ListView
         android:id="@+id/diaryListView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:divider="@android:color/black"
+        android:dividerHeight="1dp"/>
 
 </LinearLayout>
