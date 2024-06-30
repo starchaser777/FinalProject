@@ -179,8 +179,6 @@ class MainActivity : AppCompatActivity() {
                 onConfirm()
             }
             .setNegativeButton("아니오") { dialog, _ ->
-                editTitle.setText(originalTitle)
-                editContent.setText(originalContent)
                 dialog.dismiss()
             }
         builder.create().show()
