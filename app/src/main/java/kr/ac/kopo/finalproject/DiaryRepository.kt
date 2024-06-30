@@ -69,6 +69,19 @@ class DiaryRepository(context: Context) {
         db.close()
         return diaryList
     }
+
+    fun getAllDiaryDates(): List<String> {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query("Diary", arrayOf("date"), null, null, null, null, null)
+        val dates = mutableListOf<String>()
+        with(cursor) {
+            while (moveToNext()) {
+                dates.add(getString(getColumnIndexOrThrow("date")))
+            }
+        }
+        cursor.close()
+        return dates
+    }
 }
 
 

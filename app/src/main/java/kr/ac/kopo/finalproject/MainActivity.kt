@@ -7,18 +7,19 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.DatePicker
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView
+import com.prolificinteractive.materialcalendarview.CalendarDay
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var datePicker: DatePicker
+    lateinit var calendarView: MaterialCalendarView
     lateinit var viewDatePick: TextView
     lateinit var editTitle: EditText
     lateinit var editContent: EditText
@@ -42,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         diaryRepository = DiaryRepository(this)
 
         val btnBackToTitle = findViewById<ImageButton>(R.id.btnBackToTitle)
-        datePicker = findViewById(R.id.datePicker)
+        calendarView = findViewById(R.id.calendarView)
         viewDatePick = findViewById(R.id.viewDatePick)
         editTitle = findViewById(R.id.editTitle)
         editContent = findViewById(R.id.editContent)
@@ -57,8 +58,8 @@ class MainActivity : AppCompatActivity() {
         val cDay = c[Calendar.DAY_OF_MONTH]
         checkedDay(cYear, cMonth, cDay)
 
-        datePicker.init(datePicker.year, datePicker.month, datePicker.dayOfMonth) { _, year, monthOfYear, dayOfMonth ->
-            checkedDay(year, monthOfYear, dayOfMonth)
+        calendarView.setOnDateChangedListener { widget, date, selected ->
+            checkedDay(date.year, date.month, date.day)
         }
 
         btnSave.setOnClickListener {
@@ -87,12 +88,13 @@ class MainActivity : AppCompatActivity() {
             }
             override fun afterTextChanged(s: Editable) {}
         })
+
+        setUpDecorators()
     }
 
-    // 일기 데이터베이스에서 읽기
     private fun checkedDay(year: Int, monthOfYear: Int, dayOfMonth: Int) {
-        viewDatePick.text = "$year - ${monthOfYear + 1} - $dayOfMonth"
-        fileName = "${year}년 ${monthOfYear + 1}월 ${dayOfMonth}일"
+        viewDatePick.text = "$year - ${monthOfYear} - $dayOfMonth"
+        fileName = "${year}년 ${monthOfYear}월 ${dayOfMonth}일"
 
         val diary = diaryRepository.getDiary(fileName!!)
         if (diary != null) {
@@ -110,7 +112,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // 일기 작성(저장)
     private fun saveDiary(date: String) {
         val title: String = editTitle.text.toString().trim()
         val content: String = editContent.text.toString().trim()
@@ -123,12 +124,12 @@ class MainActivity : AppCompatActivity() {
         if (success) {
             Toast.makeText(applicationContext, "일기가 저장되었습니다.", Toast.LENGTH_SHORT).show()
             buttonVisibility(true)
+            updateDecorators()
         } else {
             Toast.makeText(applicationContext, "일기 저장에 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // 일기 삭제
     private fun deleteDiary(date: String) {
         val success = diaryRepository.deleteDiary(date)
         if (success) {
@@ -138,10 +139,10 @@ class MainActivity : AppCompatActivity() {
             originalContent = ""
             Toast.makeText(applicationContext, "일기가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
             buttonVisibility(false)
+            updateDecorators()
         }
     }
 
-    // 일기 수정
     private fun updateDiary(date: String) {
         val title: String = editTitle.text.toString().trim()
         val content: String = editContent.text.toString().trim()
@@ -155,6 +156,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "일기가 수정되었습니다.", Toast.LENGTH_SHORT).show()
             originalTitle = title
             originalContent = content
+            updateDecorators()
         }
     }
 
@@ -172,7 +174,6 @@ class MainActivity : AppCompatActivity() {
         builder.create().show()
     }
 
-    // 버튼 visibility 설정
     private fun buttonVisibility(isDiaryExist: Boolean) {
         if (isDiaryExist) {
             btnSave.visibility = View.GONE
@@ -183,5 +184,22 @@ class MainActivity : AppCompatActivity() {
             btnUpdate.visibility = View.GONE
             btnDelete.visibility = View.GONE
         }
+    }
+
+    private fun setUpDecorators() {
+        val allDiaryDates = diaryRepository.getAllDiaryDates()
+        val calendarDays = allDiaryDates.map {
+            val parts = it.split("년 ", "월 ", "일")
+            val year = parts[0].toInt()
+            val month = parts[1].toInt() // CalendarDay의 month는 0부터 시작
+            val day = parts[2].toInt()
+            CalendarDay.from(year, month, day)
+        }
+        calendarView.addDecorator(Decorator(calendarDays, this))
+    }
+
+    private fun updateDecorators() {
+        calendarView.removeDecorators()
+        setUpDecorators()
     }
 }
